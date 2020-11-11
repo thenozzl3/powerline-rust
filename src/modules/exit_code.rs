@@ -21,13 +21,11 @@ impl<S: ExitCodeScheme> ExitCode<S> {
 impl<S: ExitCodeScheme> Module for ExitCode<S> {
   fn append_segments(&mut self, segments: &mut Vec<Segment>) -> R<()> {
 
-    let exit_string = env::args().nth(5).unwrap_or_else(|| "1".to_string());
+    let exit_string = env::args().nth(1).unwrap_or_else(|| "1".to_string());
 
-    let exit_code = exit_string.chars().rev().nth(0).unwrap().to_string();
-
-    if exit_code != "0" {
+    if exit_string != "0" {
       let (fg, bg) = (S::EXIT_CODE_FG, S::EXIT_CODE_BG);
-      segments.push(Segment::simple(format!(" {} ", exit_code), fg, bg));
+      segments.push(Segment::simple(format!(" {} ", exit_string), fg, bg));
     }
 
     Ok(())

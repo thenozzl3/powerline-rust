@@ -90,7 +90,7 @@ impl<S: GitScheme> Module for Git<S> {
 
     let stats = self.get_git_data(git_dir)?;
 
-    let (branch_fg, branch_bg) = if stats.is_dirty() {
+    let (_branch_fg, _branch_bg) = if stats.is_dirty() {
       (S::GIT_REPO_DIRTY_FG, S::GIT_REPO_DIRTY_BG)
     } else {
       (S::GIT_REPO_CLEAN_FG, S::GIT_REPO_CLEAN_BG)

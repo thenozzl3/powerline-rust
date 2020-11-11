@@ -1,5 +1,5 @@
 use std::env;
-use std::process::Command;
+use std::str;
 
 pub fn is_remote_shell() -> bool {
   env::var_os("SSH_CLIENT").is_some()
@@ -8,5 +8,15 @@ pub fn is_remote_shell() -> bool {
 }
 
 pub fn get_jobs() -> usize {
-  Command::new("jobs").output().iter().count()
+
+  match str::parse::<usize>(match env::var("JOBS"){
+     Ok(job_string) => job_string,
+     Err(_) => "0".to_string()
+
+   }.trim()) {
+
+     Ok(job_num) => job_num,
+     Err(_) => 0
+  }
+
 }

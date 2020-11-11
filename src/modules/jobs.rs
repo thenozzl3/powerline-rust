@@ -14,14 +14,14 @@ pub trait JobsScheme {
 
 impl<S: JobsScheme> Jobs<S> {
   pub fn new() -> Jobs<S> {
-    Job { scheme: PhantomData }
+    Jobs { scheme: PhantomData }
   }
 }
 
 impl<S: JobsScheme> Module for Jobs<S> {
   fn append_segments(&mut self, segments: &mut Vec<Segment>) -> R<()> {
     let job_count = utils::get_jobs();
-    if  job_count >= 1
+    if  job_count >= 1 {
       segments.push(Segment::simple(
         format!(" {} ", job_count),
         S::HOSTNAME_FG,
@@ -29,4 +29,4 @@ impl<S: JobsScheme> Module for Jobs<S> {
       ));
   }
   Ok(())
-}
+}}

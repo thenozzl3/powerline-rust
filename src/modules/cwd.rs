@@ -3,8 +3,8 @@ use super::Module;
 use crate::{terminal::Color, Segment, R};
 
 pub struct Cwd<S: CwdScheme> {
-  max_length: usize,
-  wanted_seg_num: usize,
+  //max_length: usize,
+  //wanted_seg_num: usize,
   resolve_symlinks: bool,
   scheme: PhantomData<S>,
 }
@@ -20,24 +20,25 @@ pub trait CwdScheme {
 }
 
 impl<S: CwdScheme> Cwd<S> {
-  pub fn new(max_length: usize, wanted_seg_num: usize, resolve_symlinks: bool) -> Cwd<S> {
-    Cwd { max_length, wanted_seg_num, resolve_symlinks, scheme: PhantomData }
+  //pub fn new(max_length: usize, wanted_seg_num: usize, resolve_symlinks: bool) -> Cwd<S> {
+  pub fn new(resolve_symlinks: bool) -> Cwd<S> {
+   // Cwd { max_length, wanted_seg_num, resolve_symlinks, scheme: PhantomData }
+    Cwd { resolve_symlinks, scheme: PhantomData }
   }
 }
 
 macro_rules! append_cwd_segments {
   ($segments: ident, $last: ident, $iter: expr) => {
-    let mut s_val=String::new();
+    let mut some_iter = $iter;
 
-    while let Some(val) = $iter.next() {
+    while let Some(val) = some_iter.next() {
 
-      if  $iter.peek().is_none() {
-        $last = val ;
+      if  some_iter.peek().is_none() {
+        $last = &val.to_str().unwrap();
         continue;
       }
-
-        s_val = val.to_string();
-        if val.len() >= 6 {s_val = format!("{}\u{2026}",&val[0..5]);}
+        let mut s_val = val.to_os_string().into_string().unwrap();
+        if s_val.len() >= 6 {s_val = format!("{}\u{2026}",&s_val[0..5]);}
       $segments.push(Segment::special(
         format!("{}", s_val),
         S::PATH_FG,
@@ -53,24 +54,22 @@ macro_rules! append_cwd_segments {
 
 impl<S: CwdScheme> Module for Cwd<S> {
   fn append_segments(&mut self, segments: &mut Vec<Segment>) -> R<()> {
+    let mut skip_cwd_components = 1;
     let current_dir =
       if self.resolve_symlinks { env::current_dir()? } else { path::PathBuf::from(env::var("PWD")?) };
-
-    let mut cwd = current_dir.to_str().unwrap();
-
-
+    let cwd = current_dir.to_str().unwrap();
     if let Some(home_path) = env::home_dir() {
       let home_str = home_path.to_str().unwrap();
 
       if cwd.starts_with(home_str) {
         segments.push(Segment::simple(format!(" {} ", S::CWD_HOME_SYMBOL), S::HOME_FG, S::HOME_BG));
         if cwd == home_str {return Ok(());}
-        cwd = &cwd[home_str.len() + 1 ..];
-      }
-
-      if cwd == "/" {
+        skip_cwd_components += 2;
+      } else if cwd == "/" {
         segments.push(Segment::simple(format!(" {} ", "/"), S::HOME_FG, S::HOME_BG));
         return Ok(());
+      } else {
+        segments.push(Segment::simple(format!(" {} ", "/"), S::HOME_FG, S::HOME_BG));
       }
     }
 
@@ -85,9 +84,17 @@ impl<S: CwdScheme> Module for Cwd<S> {
         ' ',
         S::SEPARATOR_FG,
       ));
-    append_cwd_segments!(segments, end,  cwd.split("/").peekable());
 
-    segments.push(Segment::simple(format!("{}", end), S::PATH_FG, S::PATH_BG));
+    append_cwd_segments!(segments, end,  current_dir.iter().skip(skip_cwd_components).peekable());
+
+    segments.push(Segment::special(
+        format!("{}", end),
+        S::PATH_FG,
+        S::PATH_BG,
+        ' ',
+        S::SEPARATOR_FG,
+      ));
+
     segments.push(Segment::special(
         "",
         S::PATH_FG,

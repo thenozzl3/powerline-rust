@@ -5,7 +5,7 @@ use git2::{Branch, BranchType, ObjectType, Repository, Status, StatusOptions, St
 use crate::{modules::git::GitStats, R};
 
 pub fn run_git(path: &Path) -> R<super::GitStats> {
-  let mut repository = Repository::open(path)?;
+  let repository = Repository::open(path)?;
 
   let mut status_options = StatusOptions::new();
   status_options
@@ -74,7 +74,18 @@ pub fn run_git(path: &Path) -> R<super::GitStats> {
     });
 
   let mut stash_count = 0;
-  Repository::open(path).unwrap().stash_foreach(|_,_,_| {stash_count += 1; true});
+
+  let _ = match Repository::open(path) {
+    Ok(mut repo) => {
+      match repo.stash_foreach(|_,_,_| {
+        stash_count += 1; true}){
+        Ok(_) => stash_count,
+        Err(_) => 0
+      }
+
+    },
+    Err(_) => 0
+  };
 
   Ok(GitStats {
     untracked,
