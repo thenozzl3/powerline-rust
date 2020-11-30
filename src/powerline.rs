@@ -1,4 +1,5 @@
 use std::fmt;
+//use std::env;
 
 use crate::{modules::Module, terminal::*, R};
 
@@ -23,7 +24,11 @@ impl Segment {
   }
 
   pub fn special<S: Into<String>>(val: S, fg: Color, bg: Color, sep: char, sep_col: Color) -> Segment {
-    Segment { val: val.into(), fg: fg.into_fg(), bg: bg.into_bg(), sep, sep_col: sep_col.into_fg() }
+    Segment { val: val.into(),
+               fg: fg.into_fg(),
+               bg: bg.into_bg(),
+               sep,
+               sep_col: sep_col.into_fg() }
   }
 }
 
@@ -43,10 +48,17 @@ impl Powerline {
   pub fn add_segments(&mut self, new_segments: Vec<Segment>) {
     self.segments.extend(new_segments);
   }
+
+  pub fn length(&mut self) -> usize {
+    self.segments.iter().fold(0, |acc, segment| acc + segment.val.len())
+  }
 }
 
 impl fmt::Display for Powerline {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+
+
+    //let mut ps_length = 0;
     let mut iter = self.segments.iter().peekable();
     while let Some(seg) = iter.next() {
       if let Some(next) = iter.peek() {
@@ -54,6 +66,7 @@ impl fmt::Display for Powerline {
       } else {
         write!(f, "{}{}{}{}{}{}", seg.fg, seg.bg, seg.val, Reset, seg.sep_col, seg.sep)?;
       }
+    //  ps_length += seg.val.len();
     }
     write!(f, "{} ", Reset)
   }

@@ -20,3 +20,17 @@ pub fn get_jobs() -> usize {
   }
 
 }
+
+pub fn get_cols() -> usize {
+
+  match str::parse::<usize>(match env::var("COLUMNS"){
+     Ok(col_string) => col_string,
+     Err(_) => "0".to_string()
+
+   }.trim()) {
+
+     Ok(col_num) => col_num,
+     Err(_) => 0
+  }
+
+}
