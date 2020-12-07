@@ -1,6 +1,6 @@
 use std::{env, marker::PhantomData, path};
 use super::Module;
-use crate::{terminal::Color, terminal::Reset, Segment, utils, R};
+use crate::{terminal::Color, Segment, utils, R};
 
 pub struct Cwd<S: CwdScheme> {
   //wanted_seg_num: usize,
@@ -29,28 +29,26 @@ impl<S: CwdScheme> Cwd<S> {
 macro_rules! append_cwd_segments {
   ($self:ident,
    $segments: ident,
-   $cols: ident,
    $iter: expr) => {
     let mut some_iter = $iter;
-    let mut length_ahead: usize ;
 
     while let Some(val) = some_iter.next() {
       let mut s_val = val.to_os_string().into_string().unwrap();
-       if let Some(next_val) = some_iter.peek() {
-      if s_val.len() >= 6 {
-        s_val = format!("{}\u{2026}",&s_val[0..5]);
-      }
+      if let Some(_) = some_iter.peek() {
 
-      $segments.push(Segment::special(
-        format!("{}", s_val),
-        S::PATH_FG,
-        S::PATH_BG,
-        '/',
-        S::SEPARATOR_FG,
-      ));
+        if s_val.len() >= 6 {
+          s_val = format!("{}\u{2026}",&s_val[0..5]);
+        }
+
+        $segments.push(Segment::special(
+          format!("{}", s_val),
+          S::PATH_FG,
+          S::PATH_BG,
+          '/',
+          S::SEPARATOR_FG,
+        ));
 
       } else {
-
         $segments.push(Segment::special(
           format!("{} ", s_val),
           S::PATH_FG,
@@ -59,7 +57,8 @@ macro_rules! append_cwd_segments {
           S::PATH_BG,
         ));
       }
-   }}
+    }
+  }
 }
 
 impl<S: CwdScheme> Module for Cwd<S> {
@@ -92,11 +91,9 @@ impl<S: CwdScheme> Module for Cwd<S> {
       S::SEPARATOR_FG,
     ));
 
-    let columns = utils::get_cols();
 
     append_cwd_segments!(self,
                          segments,
-                         columns,
                          current_dir.iter().skip(skip_cwd_components).peekable());
 
     Ok(())
