@@ -75,7 +75,9 @@ impl fmt::Display for Powerline {
         if ps_length + next.val.chars().count() + 1 <  cols {
         next_sep_col = format!("{}",next.bg) ;
         } else {
-          next_sep_col = format!("{}",Reset) ;
+          if seg.sep != '/'  {
+            next_sep_col = format!("{}",Reset) ;
+          }
         }
       } else {
         next_sep_col = format!("{}",Reset) ;
