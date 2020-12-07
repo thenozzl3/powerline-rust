@@ -1,7 +1,7 @@
 use std::fmt;
 //use std::env;
 
-use crate::{modules::Module, terminal::*, R};
+use crate::{modules::Module, terminal::*, R, utils};
 
 #[derive(Clone)]
 pub struct Segment {
@@ -56,17 +56,33 @@ impl Powerline {
 
 impl fmt::Display for Powerline {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-
-
-    //let mut ps_length = 0;
+    // get the display size
+    let cols = utils::get_cols();
+    let mut next_sep_col = format!("{}", Reset);
+    let mut ps_length = 0;
     let mut iter = self.segments.iter().peekable();
+
     while let Some(seg) = iter.next() {
-      if let Some(next) = iter.peek() {
-        write!(f, "{}{}{}{}{}{}", seg.fg, seg.bg, seg.val, next.bg, seg.sep_col, seg.sep)?;
-      } else {
-        write!(f, "{}{}{}{}{}{}", seg.fg, seg.bg, seg.val, Reset, seg.sep_col, seg.sep)?;
+
+      ps_length += seg.val.chars().count() + 1 ;
+
+      if ps_length >= cols {
+        write!(f, "{}\n", Reset)?;
+        ps_length = 0;
       }
-    //  ps_length += seg.val.len();
+
+      if let Some(next) = iter.peek() {
+        if ps_length + next.val.chars().count() + 1 <  cols {
+        next_sep_col = format!("{}",next.bg) ;
+        } else {
+          next_sep_col = format!("{}",Reset) ;
+        }
+      } else {
+        next_sep_col = format!("{}",Reset) ;
+      }
+
+      write!(f, "{}{}{}{}{}{}", seg.fg, seg.bg, seg.val, next_sep_col, seg.sep_col, seg.sep)?;
+
     }
     write!(f, "{} ", Reset)
   }

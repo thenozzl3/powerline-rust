@@ -9,9 +9,8 @@ fn main() -> powerline::R<()> {
   prompt.add_module(User::<SimpleTheme>::new())?;
   prompt.add_module(Host::<SimpleTheme>::new())?;
 
-  let ps1_length = prompt.length();
   //println!("{}", ps1_length);
-  prompt.add_module(Cwd::<SimpleTheme>::new(false, ps1_length))?;
+  prompt.add_module(Cwd::<SimpleTheme>::new(false))?;
   prompt.add_module(Git::<SimpleTheme>::new())?;
   //prompt.add_module(ReadOnly::<SimpleTheme>::new())?;
   prompt.add_module(VirtualEnv::<SimpleTheme>::new())?;
