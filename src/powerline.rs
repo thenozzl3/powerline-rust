@@ -76,11 +76,11 @@ impl fmt::Display for Powerline {
         next_sep_col = format!("{}",next.bg) ;
         } else {
           if seg.sep != '/'  {
-            next_sep_col = format!("{}",Reset) ;
+            next_sep_col = format!("{}", Reset) ;
           }
         }
       } else {
-        next_sep_col = format!("{}",Reset) ;
+        next_sep_col = format!("{}", Reset) ;
       }
 
       write!(f, "{}{}{}{}{}{}", seg.fg, seg.bg, seg.val, next_sep_col, seg.sep_col, seg.sep)?;

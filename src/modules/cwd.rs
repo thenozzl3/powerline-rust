@@ -1,6 +1,6 @@
 use std::{env, marker::PhantomData, path};
 use super::Module;
-use crate::{terminal::Color, Segment, utils, R};
+use crate::{terminal::Color, Segment, R};
 
 pub struct Cwd<S: CwdScheme> {
   //wanted_seg_num: usize,
