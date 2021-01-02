@@ -2,6 +2,7 @@
 use powerline::{modules::*, theme::SimpleTheme};
 
 #[cfg(feature = "time")]
+//use powerline::modules::Time;
 use powerline::modules::Time;
 
 fn main() -> powerline::R<()> {
