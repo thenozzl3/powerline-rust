@@ -1,3 +1,11 @@
+Forked and modified to suit my needs .
+Changes:
+- nicer line breaks on the section arrows
+- fixed a crash on empty dirs
+- backround job count segment
+- customized to work with my patched font set
+
+
 # powerline-rust
 [![Build Status](https://travis-ci.org/Xeoeen/powerline-rust.svg)](https://travis-ci.org/Xeoeen/powerline-rust)
 
